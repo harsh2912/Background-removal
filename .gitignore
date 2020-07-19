@@ -5,3 +5,4 @@
 
 *.pth
 .ipynb_checkpoints
+./FBA.pth
