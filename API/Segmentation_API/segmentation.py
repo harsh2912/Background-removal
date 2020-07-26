@@ -24,27 +24,26 @@ class Model:
         with torch.no_grad():
             pred = self.model([image])
             
-        outputs = [(pred[0]['masks'][i][0],pred[0]['labels'][i]) for i in range(len(pred[0]['boxes'])) if pred[0]['scores'][i]>self.conf_thresh]
+        outputs = [(pred[0]['masks'][i][0],pred[0]['labels'][i]) for i in range(len(pred[0]['boxes'])) if pred[0]['scores'][i]>self.conf_thresh and pred[0]['labels'][i]==1]
         
         return outputs
         
+        
 
 class Preprocessing:
-    def __init__(self,kernel,iterations=4,lower_bound=0.1,upper_bound=0.9,dilate_iter=15,erode_iter=5):
+    def __init__(self,kernel,lower_bound=0.1,upper_bound=0.9,dilate_iter=10,rode_iter=2):
         self.kernel = kernel
-        self.iterations = iterations
         self.low_thresh = lower_bound
         self.high_thresh = upper_bound
         self.dilate_iter = dilate_iter
         self.erode_iter = erode_iter
         
     def get_target_mask(self,masks):
-        areas = []
+        out = np.zeros(masks[0].shape)
         for mask in masks:
-            mask_area = (mask>0.5).sum()/float(mask.shape[0]*mask.shape[1])
-            areas.append(mask_area)
-    #         print(mask_area)
-        return masks[np.argmax(areas)]
+            out += mask
+        out = np.clip(out,0,1)
+        return out
     
     def get_trimap(self,masks):
         target_mask = self.get_target_mask(masks)
@@ -54,12 +53,13 @@ class Preprocessing:
         dilate = cv2.dilate(ambiguous.astype('uint8'),self.kernel,iterations=self.dilate_iter)
         h, w = target_mask.shape
         
-        bg_giver = erode + dilate 
+        bg_giver = np.clip((erode + dilate),0,1 )
         trimap = np.zeros((h, w, 2))
         trimap[erode == 1, 1] = 1
         trimap[bg_giver == 0, 0] = 1
         
         return trimap
+        
         
         
 

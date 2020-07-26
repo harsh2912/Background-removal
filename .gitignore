@@ -5,4 +5,9 @@
 
 *.pth
 .ipynb_checkpoints
-./FBA.pth
+./models/FBA.pth
+./API/Segmentation_API/segmentation_orig.py
+./Experiment.ipynb
+./FBA_Matting.ipynb
+./Videos/avengers.avi
+./Videos/friends.avi
