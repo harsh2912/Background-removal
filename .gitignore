@@ -5,7 +5,6 @@
 
 *.pth
 .ipynb_checkpoints
-./models/FBA.pth
 ./API/Segmentation_API/segmentation_orig.py
 ./Experiment.ipynb
 ./FBA_Matting.ipynb
