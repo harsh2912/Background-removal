@@ -21,17 +21,19 @@ class Model:
 
     def get_seg_output(self,image:np.array):
         image = self.transform(image.copy())
+        print(image.shape)
         with torch.no_grad():
             pred = self.model([image])
             
         outputs = [(pred[0]['masks'][i][0],pred[0]['labels'][i]) for i in range(len(pred[0]['boxes'])) if pred[0]['scores'][i]>self.conf_thresh and pred[0]['labels'][i]==1]
+#         outputs = [(pred[0]['masks'][i][0],pred[0]['labels'][i]) for i in range(len(pred[0]['boxes'])) if pred[0]['scores'][i]>self.conf_thresh]
         
         return outputs
         
         
 
 class Preprocessing:
-    def __init__(self,kernel,lower_bound=0.1,upper_bound=0.9,dilate_iter=10,rode_iter=2):
+    def __init__(self,kernel,lower_bound=0.1,upper_bound=0.9,dilate_iter=10,erode_iter=10):
         self.kernel = kernel
         self.low_thresh = lower_bound
         self.high_thresh = upper_bound
@@ -49,6 +51,7 @@ class Preprocessing:
         target_mask = self.get_target_mask(masks)
         foreground = target_mask >= self.high_thresh
         ambiguous = (target_mask < self.high_thresh)*(target_mask>=self.low_thresh) 
+        print(self.erode_iter)
         erode = cv2.erode(foreground.astype('uint8'),self.kernel,iterations=self.erode_iter)
         dilate = cv2.dilate(ambiguous.astype('uint8'),self.kernel,iterations=self.dilate_iter)
         h, w = target_mask.shape
