@@ -1,5 +1,5 @@
 
-# Bakcground Removal
+# Background Removal
 
 
 <p align="center">
